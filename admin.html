@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>StyleZone — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Nunito',sans-serif;background:#f1f3f6;color:#212121;max-width:480px;margin:0 auto;min-height:100vh}
+:root{--red:#e53935;--green:#388e3c;--blue:#1565c0;--border:#e0e0e0;--sub:#717171;--bg:#f1f3f6}
+.hidden{display:none!important}
+#loginScreen{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:linear-gradient(135deg,#e53935,#c62828)}
+.adm-logo{font-size:36px;font-weight:900;color:#fff;font-style:italic;letter-spacing:-1px;margin-bottom:6px}
+.adm-logo span{color:#ffcc02}
+.adm-tagline{font-size:12px;color:rgba(255,255,255,.8);font-weight:700;letter-spacing:3px;margin-bottom:32px}
+.login-card{background:#fff;border-radius:16px;padding:28px 24px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.login-card h2{font-size:20px;font-weight:900;margin-bottom:4px}
+.login-card p{font-size:13px;color:var(--sub);margin-bottom:20px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:11px;font-weight:800;color:var(--sub);margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.inp{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;color:#212121;transition:border .2s}
+.inp:focus{border-color:var(--red)}
+.login-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:4px;transition:opacity .2s}
+.login-btn:active{opacity:.85}
+.err-msg{color:var(--red);font-size:12px;font-weight:700;margin-top:8px;display:none;text-align:center}
+#adminApp{display:none;min-height:100vh;padding-bottom:20px}
+.adm-hdr{background:var(--red);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.adm-hdr-left{display:flex;flex-direction:column}
+.adm-hdr h2{font-size:17px;font-weight:900}
+.adm-hdr-sub{font-size:10px;color:rgba(255,255,255,.75);margin-top:2px}
+.logout-btn{background:rgba(255,255,255,.2);border:none;color:#fff;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:800;font-size:12px;font-family:inherit}
+.adm-tabs{display:flex;overflow-x:auto;scrollbar-width:none;background:#fff;border-bottom:1px solid var(--border)}
+.adm-tabs::-webkit-scrollbar{display:none}
+.atab{padding:12px 14px;border:none;background:none;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--sub);flex-shrink:0;border-bottom:3px solid transparent;transition:all .2s;white-space:nowrap}
+.atab.on{color:var(--red);border-bottom-color:var(--red)}
+.adm-body{padding:12px}
+.adm-card{background:#fff;border-radius:8px;padding:14px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.stat-card{background:#fff;border-radius:8px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06);text-align:center}
+.stat-num{font-size:26px;font-weight:900;line-height:1}
+.stat-lbl{font-size:11px;color:var(--sub);margin-top:4px;font-weight:700}
+.sts-btns{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.s-btn{padding:6px 10px;border-radius:4px;border:none;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit;transition:all .15s}
+.s-btn:active{opacity:.8;transform:scale(.96)}
+.badge{display:inline-block;padding:3px 10px;border-radius:3px;font-size:11px;font-weight:900}
+.b-confirmed{background:#e8f5e9;color:#2e7d32}
+.b-pending{background:#fff3e0;color:#e65100}
+.b-processing{background:#e3f2fd;color:#1565c0}
+.b-shipped{background:#f3e5f5;color:#6a1b9a}
+.b-delivered{background:#e8f5e9;color:#1b5e20}
+.b-cancelled{background:#ffebee;color:#b71c1c}
+.b-delayed{background:#fff8e1;color:#f57f17}
+.b-out-of-delivery{background:#e1f5fe;color:#01579b}
+.b-packed{background:#f3e5f5;color:#4a148c}
+.cust-r{font-size:12px;padding:5px 0;display:flex;gap:6px;border-bottom:1px solid #f5f5f5;align-items:flex-start}
+.cust-r:last-child{border:none}
+.cust-k{color:var(--red);font-weight:800;min-width:88px;flex-shrink:0}
+.search-bar{background:#fff;padding:10px 12px;margin-bottom:10px;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.06);display:flex;gap:8px;align-items:center}
+.search-bar input{flex:1;border:none;outline:none;font-size:13px;font-family:inherit}
+.add-form{background:#fff;border-radius:8px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.inp-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select.inp{background:#fff}
+.place-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:6px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;margin-top:8px}
+.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:#323232;color:#fff;padding:10px 20px;border-radius:4px;font-size:13px;font-weight:700;z-index:9000;opacity:0;pointer-events:none;transition:opacity .3s;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.2);max-width:90%}
+.toast.on{opacity:1}
+.empty-st{text-align:center;padding:40px 20px}
+.empty-st .ei{font-size:60px;margin-bottom:12px}
+.empty-st p{color:var(--sub);font-weight:800;font-size:14px}
+/* Edit modal */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:8000;display:flex;align-items:flex-end;justify-content:center}
+.modal-box{background:#fff;width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:20px;max-height:88vh;overflow-y:auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.pay-detail-box{background:#fff9f9;border:1.5px solid #ffcdd2;border-radius:8px;padding:12px;margin-top:8px}
+.pay-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #f5f5f5;font-size:12px}
+.pay-row:last-child{border:none}
+.pay-label{color:var(--sub);font-weight:700}
+.pay-value{font-weight:900;color:#212121;word-break:break-all;text-align:right;max-width:60%}
+.sens-badge{background:#ffebee;color:var(--red);font-size:10px;font-weight:900;padding:2px 6px;border-radius:3px;margin-left:4px}
+/* Product card in admin */
+.prod-admin-card{background:#fff;border-radius:8px;padding:12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.prod-admin-actions{display:flex;gap:6px;margin-top:10px}
+.prod-action-btn{flex:1;padding:8px 4px;border:none;border-radius:5px;font-size:11px;font-weight:800;cursor:pointer;font-family:inherit}
+.oos-toggle{background:#fff3e0;color:#e65100}
+.oos-toggle.active{background:#e8f5e9;color:#2e7d32}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="adm-logo" id="loginLogoText">Style<span>Zone</span></div>
+  <div class="adm-tagline">ADMIN PANEL</div>
+  <div class="login-card">
+    <h2>🔐 Admin Login</h2>
+    <p>Enter your admin credentials to continue</p>
+    <div class="field">
+      <label>Username</label>
+      <input class="inp" id="admUser" type="text" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input class="inp" id="admPass" type="password" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()"/>
+    </div>
+    <button class="login-btn" onclick="doLogin()">Login to Admin Panel →</button>
+    <div class="err-msg" id="loginErr">❌ Wrong credentials. Try again.</div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-ov hidden" id="editModal">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <div style="font-size:16px;font-weight:900">✏️ Edit Product</div>
+      <button onclick="closeEdit()" style="background:#f5f5f5;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    <div class="field"><label>Product Name</label><input class="inp" id="epName" placeholder="Product name"/></div>
+    <div class="field"><label>Brand</label><input class="inp" id="epBrand" placeholder="Brand"/></div>
+    <div class="field"><label>Category</label>
+      <select class="inp" id="epCat"><option>Fashion</option><option>Electronics</option><option>Mobiles</option><option>Beauty</option><option>Home</option><option>Sports</option><option>Books</option><option>Toys</option></select>
+    </div>
+    <div class="inp-2">
+      <div class="field"><label>MRP (₹)</label><input class="inp" id="epMrp" type="number" placeholder="1999"/></div>
+      <div class="field"><label>Selling Price (₹)</label><input class="inp" id="epSp" type="number" placeholder="999"/></div>
+    </div>
+    <div class="inp-2">
+      <div class="field"><label>Discount %</label><input class="inp" id="epDisc" type="number" placeholder="50"/></div>
+      <div class="field"><label>Stock</label><input class="inp" id="epStock" type="number" placeholder="100"/></div>
+    </div>
+    <div class="field"><label>SKU</label><input class="inp" id="epSku" placeholder="SKU-001"/></div>
+    <div class="field"><label>Image URL 1</label><input class="inp" id="epI1" placeholder="https://..."/></div>
+    <div class="field"><label>Image URL 2</label><input class="inp" id="epI2" placeholder="https://..."/></div>
+    <div class="field"><label>Image URL 3</label><input class="inp" id="epI3" placeholder="https://..."/></div>
+    <div class="field"><label>Description</label><textarea class="inp" id="epDesc" rows="3" placeholder="Product description..."></textarea></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <input type="checkbox" id="epOos" style="width:18px;height:18px;cursor:pointer"/>
+      <label for="epOos" style="font-size:14px;font-weight:800;cursor:pointer">Mark as Out of Stock</label>
+    </div>
+    <input type="hidden" id="epId"/>
+    <input type="hidden" id="epType"/> <!-- 'base' or 'custom' -->
+    <button class="place-btn" onclick="saveEditProd()">💾 Save Changes</button>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="adminApp">
+  <div class="adm-hdr">
+    <div class="adm-hdr-left">
+      <h2>⚙️ Admin Panel</h2>
+      <div class="adm-hdr-sub" id="admSiteName">StyleZone</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Logout →</button>
+  </div>
+  <div class="adm-tabs">
+    <button class="atab on" onclick="setTab('orders',this)">📦 Orders</button>
+    <button class="atab" onclick="setTab('products',this)">🛍️ Products</button>
+    <button class="atab" onclick="setTab('customers',this)">👥 Customers</button>
+    <button class="atab" onclick="setTab('add',this)">➕ Add Product</button>
+    <button class="atab" onclick="setTab('customize',this)">🎨 Customize</button>
+    <button class="atab" onclick="setTab('banners',this)">🖼️ Banners</button>
+    <button class="atab" onclick="setTab('settings',this)">⚙️ Settings</button>
+  </div>
+  <div class="adm-body">
+    <!-- ORDERS -->
+    <div id="tabOrders">
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="search-bar"><span>🔍</span><input id="ordSearch" placeholder="Search by order ID, name, phone..." oninput="renderOrders()"/></div>
+      <div id="aOrders"></div>
+    </div>
+    <!-- PRODUCTS -->
+    <div id="tabProducts" class="hidden">
+      <div class="adm-card" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:13px;font-weight:900;color:var(--sub)" id="prodCount">Loading...</div>
+        <div style="font-size:11px;color:var(--blue);font-weight:800">Tap ✏️ to edit any product</div>
+      </div>
+      <div class="search-bar"><span>🔍</span><input id="prodSearch" placeholder="Search products..." oninput="renderProducts()"/></div>
+      <!-- Tabs: All Products / Custom Only -->
+      <div style="display:flex;gap:0;background:#fff;border-radius:8px;overflow:hidden;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,.06)">
+        <button id="ptab-all" onclick="setProdTab('all',this)" style="flex:1;padding:10px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;background:var(--red);color:#fff">All Products</button>
+        <button id="ptab-custom" onclick="setProdTab('custom',this)" style="flex:1;padding:10px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:var(--sub)">Custom Only</button>
+      </div>
+      <div id="aProds"></div>
+    </div>
+    <!-- CUSTOMERS -->
+    <div id="tabCustomers" class="hidden">
+      <div class="search-bar"><span>🔍</span><input id="custSearch" placeholder="Search customers..." oninput="renderCustomers()"/></div>
+      <div id="aCusts"></div>
+    </div>
+    <!-- ADD PRODUCT -->
+    <div id="tabAdd" class="hidden">
+      <div class="add-form">
+        <div style="font-size:16px;font-weight:900;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">➕ Add New Product</div>
+        <div class="field"><label>Product Name *</label><input class="inp" id="apN" placeholder="e.g. Nike Air Max 270"/></div>
+        <div class="field"><label>Brand</label><input class="inp" id="apB" placeholder="Brand name"/></div>
+        <div class="field"><label>Category *</label>
+          <select class="inp" id="apC"><option>Fashion</option><option>Electronics</option><option>Mobiles</option><option>Beauty</option><option>Home</option><option>Sports</option><option>Books</option><option>Toys</option></select>
+        </div>
+        <div class="inp-2">
+          <div class="field"><label>MRP (₹) *</label><input class="inp" id="apMrp" type="number" placeholder="1999"/></div>
+          <div class="field"><label>Selling Price (₹) *</label><input class="inp" id="apSp" type="number" placeholder="999"/></div>
+        </div>
+        <div class="inp-2">
+          <div class="field"><label>Discount %</label><input class="inp" id="apD" type="number" placeholder="50"/></div>
+          <div class="field"><label>Stock</label><input class="inp" id="apSt" type="number" placeholder="100"/></div>
+        </div>
+        <div class="field"><label>SKU</label><input class="inp" id="apSku" placeholder="SKU-001"/></div>
+        <div class="field"><label>Image URL 1 *</label><input class="inp" id="apI1" placeholder="https://..."/></div>
+        <div class="field"><label>Image URL 2</label><input class="inp" id="apI2" placeholder="https://..."/></div>
+        <div class="field"><label>Image URL 3</label><input class="inp" id="apI3" placeholder="https://..."/></div>
+        <div class="field"><label>Description</label><textarea class="inp" id="apDesc" rows="3" placeholder="Product description..."></textarea></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <input type="checkbox" id="apOos" style="width:18px;height:18px;cursor:pointer"/>
+          <label for="apOos" style="font-size:14px;font-weight:800;cursor:pointer">Mark as Out of Stock</label>
+        </div>
+        <button class="place-btn" onclick="doAddProd()">➕ Add Product</button>
+      </div>
+    </div>
+    <!-- CUSTOMIZE -->
+    <div id="tabCustomize" class="hidden">
+
+      <!-- THEME COLORS -->
+      <div class="adm-card" style="margin-bottom:10px">
+        <div style="font-size:15px;font-weight:900;margin-bottom:4px">🎨 Theme Colors</div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:14px">Site ke saare colors ek jagah se change karo</div>
+        <div class="inp-2" style="margin-bottom:10px">
+          <div class="field">
+            <label>Primary Color</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="color" id="thPrimary" value="#e53935" style="width:44px;height:44px;border:none;border-radius:6px;cursor:pointer;padding:2px"/>
+              <input class="inp" id="thPrimaryHex" placeholder="#e53935" style="flex:1;font-size:13px" oninput="syncColor('thPrimary','thPrimaryHex')"/>
+            </div>
+            <div style="font-size:10px;color:var(--sub);margin-top:3px">Header, buttons, active icons</div>
+          </div>
+          <div class="field">
+            <label>Accent Color</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="color" id="thAccent" value="#f9c820" style="width:44px;height:44px;border:none;border-radius:6px;cursor:pointer;padding:2px"/>
+              <input class="inp" id="thAccentHex" placeholder="#f9c820" style="flex:1;font-size:13px" oninput="syncColor('thAccent','thAccentHex')"/>
+            </div>
+            <div style="font-size:10px;color:var(--sub);margin-top:3px">Logo second color</div>
+          </div>
+        </div>
+        <div class="inp-2" style="margin-bottom:10px">
+          <div class="field">
+            <label>Background Color</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="color" id="thBg" value="#f1f3f6" style="width:44px;height:44px;border:none;border-radius:6px;cursor:pointer;padding:2px"/>
+              <input class="inp" id="thBgHex" placeholder="#f1f3f6" style="flex:1;font-size:13px" oninput="syncColor('thBg','thBgHex')"/>
+            </div>
+          </div>
+          <div class="field">
+            <label>Text Color</label>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="color" id="thText" value="#212121" style="width:44px;height:44px;border:none;border-radius:6px;cursor:pointer;padding:2px"/>
+              <input class="inp" id="thTextHex" placeholder="#212121" style="flex:1;font-size:13px" oninput="syncColor('thText','thTextHex')"/>
+            </div>
+          </div>
+        </div>
+        <!-- Quick color presets -->
+        <div style="font-size:11px;font-weight:800;color:var(--sub);margin-bottom:8px">⚡ QUICK PRESETS:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+          <div onclick="applyPreset('#e53935','#f9c820')" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#e53935,#f9c820);cursor:pointer;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="Red (Default)"></div>
+          <div onclick="applyPreset('#1a237e','#00b0ff')" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1a237e,#00b0ff);cursor:pointer;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="Royal Blue"></div>
+          <div onclick="applyPreset('#1b5e20','#69f0ae')" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1b5e20,#69f0ae);cursor:pointer;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="Forest Green"></div>
+          <div onclick="applyPreset('#4a148c','#e040fb')" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4a148c,#e040fb);cursor:pointer;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="Purple"></div>
+          <div onclick="applyPreset('#bf360c','#ff9800')" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#bf360c,#ff9800);cursor:pointer;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="Orange Flame"></div>
+          <div onclick="applyPreset('#006064','#80deea')" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#006064,#80deea);cursor:pointer;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="Teal"></div>
+          <div onclick="applyPreset('#880e4f','#f48fb1')" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#880e4f,#f48fb1);cursor:pointer;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="Pink"></div>
+          <div onclick="applyPreset('#212121','#f5f5f5')" style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#212121,#f5f5f5);cursor:pointer;border:2px solid #ccc;box-shadow:0 2px 6px rgba(0,0,0,.2)" title="Black & White"></div>
+        </div>
+        <button class="place-btn" onclick="saveTheme()">💾 Save Colors</button>
+      </div>
+
+      <!-- FONT -->
+      <div class="adm-card" style="margin-bottom:10px">
+        <div style="font-size:15px;font-weight:900;margin-bottom:14px">🔤 Font Style</div>
+        <div class="field">
+          <label>Choose Font</label>
+          <select class="inp" id="thFont" onchange="previewFont(this.value)">
+            <option value="Nunito">Nunito (Default)</option>
+            <option value="Poppins">Poppins</option>
+            <option value="Roboto">Roboto</option>
+            <option value="Montserrat">Montserrat</option>
+            <option value="Raleway">Raleway</option>
+            <option value="Playfair Display">Playfair Display (Elegant)</option>
+            <option value="Ubuntu">Ubuntu</option>
+            <option value="Inter">Inter</option>
+            <option value="DM Sans">DM Sans</option>
+            <option value="Josefin Sans">Josefin Sans</option>
+          </select>
+        </div>
+        <div id="fontPreviewBox" style="padding:12px;background:#f5f5f5;border-radius:6px;font-size:16px;font-weight:700;text-align:center;margin-bottom:10px">Style<span style="color:var(--red)">Zone</span> — Your Fashion Store</div>
+        <button class="place-btn" onclick="saveFont()">💾 Save Font</button>
+      </div>
+
+      <!-- SEARCH BAR STYLE -->
+      <div class="adm-card" style="margin-bottom:10px">
+        <div style="font-size:15px;font-weight:900;margin-bottom:14px">🔍 Search Bar Style</div>
+        <div class="field">
+          <label>Search Icon / Placeholder</label>
+          <input class="inp" id="thSearchPlaceholder" placeholder="Search products, brands..."/>
+        </div>
+        <div class="field">
+          <label>Corner Radius</label>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="range" id="thSearchRadius" min="0" max="25" value="4" style="flex:1" oninput="document.getElementById('srPxVal').textContent=this.value+'px'"/>
+            <span id="srPxVal" style="font-weight:900;min-width:32px;font-size:13px">4px</span>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <div style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:4px;background:#f9f9f9;font-size:12px;color:#aaa">Square (0px)</div>
+            <div style="flex:1;padding:10px;border:1.5px solid #ddd;border-radius:20px;background:#f9f9f9;font-size:12px;color:#aaa;text-align:center">Rounded (20px)</div>
+          </div>
+        </div>
+        <button class="place-btn" onclick="saveSearchStyle()">💾 Save Search Style</button>
+      </div>
+
+      <!-- NAV BAR ICONS -->
+      <div class="adm-card" style="margin-bottom:10px">
+        <div style="font-size:15px;font-weight:900;margin-bottom:4px">📱 Bottom Nav Icons</div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:14px">Emoji paste karo ya koi bhi icon</div>
+        <div class="inp-2">
+          <div class="field"><label>🏠 Home Tab</label><input class="inp" id="navIcoHome" placeholder="🏠" maxlength="4"/></div>
+          <div class="field"><label>❤️ Wishlist Tab</label><input class="inp" id="navIcoWish" placeholder="❤️" maxlength="4"/></div>
+        </div>
+        <div class="inp-2">
+          <div class="field"><label>🛒 Cart Tab</label><input class="inp" id="navIcoCart" placeholder="🛒" maxlength="4"/></div>
+          <div class="field"><label>📦 Orders Tab</label><input class="inp" id="navIcoOrds" placeholder="📦" maxlength="4"/></div>
+        </div>
+        <div class="field"><label>👤 Account Tab</label><input class="inp" id="navIcoProf" placeholder="👤" maxlength="4"/></div>
+        <button class="place-btn" onclick="saveNavIcons()">💾 Save Nav Icons</button>
+      </div>
+
+      <!-- CATEGORIES EDITOR -->
+      <div class="adm-card">
+        <div style="font-size:15px;font-weight:900;margin-bottom:4px">📂 Category Editor</div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:14px">Har category ka naam, emoji, background color aur image change karo</div>
+        <div id="catEditorList"></div>
+        <div style="height:1px;background:var(--border);margin:14px 0"></div>
+        <div style="font-size:13px;font-weight:900;margin-bottom:12px">➕ Add New Category</div>
+        <div class="inp-2">
+          <div class="field"><label>Category Name</label><input class="inp" id="newCatId" placeholder="e.g. Jewelry"/></div>
+          <div class="field"><label>Label (display)</label><input class="inp" id="newCatLbl" placeholder="e.g. Jewelry"/></div>
+        </div>
+        <div class="inp-2">
+          <div class="field"><label>Emoji Icon</label><input class="inp" id="newCatIco" placeholder="💎" maxlength="4"/></div>
+          <div class="field"><label>Bg Color</label><input type="color" id="newCatBg" value="#f3e5f5" style="width:100%;height:42px;border:1.5px solid var(--border);border-radius:4px;cursor:pointer;padding:2px 6px"/></div>
+        </div>
+        <div class="field"><label>Image URL (optional — replaces emoji)</label><input class="inp" id="newCatImg" placeholder="https://... (circle image)"/></div>
+        <button class="place-btn" onclick="addCat()">➕ Add Category</button>
+        <button onclick="resetCats()" style="width:100%;padding:12px;background:#fff3e0;color:#e65100;border:1.5px solid #ffe0b2;border-radius:6px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:8px">↺ Reset to Default Categories</button>
+      </div>
+    </div>
+
+    <!-- BANNERS -->
+    <div id="tabBanners" class="hidden">
+      <div class="adm-card" style="margin-bottom:10px">
+        <div style="font-size:15px;font-weight:900;margin-bottom:4px">🖼️ Banner / Poster Manager</div>
+        <div style="font-size:12px;color:var(--sub)">Add up to 5 banners. Use image URL ya color gradient — jo chahein.</div>
+      </div>
+
+      <!-- Add Banner Form -->
+      <div class="adm-card" style="margin-bottom:10px">
+        <div style="font-size:14px;font-weight:900;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border)">➕ Add New Banner</div>
+
+        <!-- Type toggle -->
+        <div style="display:flex;gap:0;border:1.5px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:14px">
+          <button id="bTypeGrad" onclick="setBnrType('gradient')" style="flex:1;padding:10px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;background:var(--red);color:#fff">🎨 Color Gradient</button>
+          <button id="bTypeImg" onclick="setBnrType('image')" style="flex:1;padding:10px;border:none;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:var(--sub)">🖼️ Image URL</button>
+        </div>
+
+        <!-- Gradient fields -->
+        <div id="bnrGradSec">
+          <div class="inp-2">
+            <div class="field"><label>Color 1 (Left)</label><input class="inp" id="bnrC1" type="color" value="#e53935" style="height:42px;padding:4px 8px;cursor:pointer"/></div>
+            <div class="field"><label>Color 2 (Right)</label><input class="inp" id="bnrC2" type="color" value="#ff8f00" style="height:42px;padding:4px 8px;cursor:pointer"/></div>
+          </div>
+        </div>
+
+        <!-- Image URL field -->
+        <div id="bnrImgSec" style="display:none">
+          <div class="field"><label>Image URL *</label><input class="inp" id="bnrImgUrl" placeholder="https://... (paste image link)"/></div>
+          <div style="font-size:11px;color:var(--sub);margin-bottom:10px">Tip: Imgur, Cloudinary, ya koi bhi direct image URL use karo</div>
+        </div>
+
+        <div class="field"><label>Banner Heading (emoji + text)</label><input class="inp" id="bnrTitle" placeholder="🔥 Up to 70% Off"/></div>
+        <div class="field"><label>Subtitle (optional)</label><input class="inp" id="bnrSub" placeholder="Fashion, Electronics & More"/></div>
+
+        <!-- Live Preview -->
+        <div style="margin-bottom:14px">
+          <div style="font-size:11px;font-weight:800;color:var(--sub);margin-bottom:6px">LIVE PREVIEW:</div>
+          <div id="bnrPreview" style="height:100px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;overflow:hidden;position:relative;background:linear-gradient(135deg,#e53935,#ff8f00)">
+            <div id="pvTitle" style="font-size:20px;font-weight:900;color:#fff;text-align:center;padding:0 12px;text-shadow:0 2px 6px rgba(0,0,0,.3)">🔥 Up to 70% Off</div>
+            <div id="pvSub" style="font-size:12px;color:rgba(255,255,255,.9);font-weight:700;text-align:center">Fashion, Electronics & More</div>
+          </div>
+        </div>
+
+        <button class="place-btn" onclick="addBanner()">➕ Add This Banner</button>
+      </div>
+
+      <!-- Current Banners List -->
+      <div class="adm-card">
+        <div style="font-size:14px;font-weight:900;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)">📋 Current Banners</div>
+        <div id="bnrList"></div>
+        <button onclick="resetBanners()" style="width:100%;margin-top:12px;padding:12px;background:#fff3e0;color:#e65100;border:1.5px solid #ffe0b2;border-radius:6px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">↺ Reset to Default Banners</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tabSettings" class="hidden">
+      <div class="adm-card">
+        <div style="font-size:15px;font-weight:900;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">⚙️ Site Settings</div>
+        <div class="field"><label>Site Name</label><input class="inp" id="setN" placeholder="StyleZone"/></div>
+        <div class="field"><label>Hero Banner Text</label><input class="inp" id="setH" placeholder="🔥 Top Deals for You"/></div>
+        <button class="place-btn" onclick="doSaveSet()">💾 Save Settings</button>
+      </div>
+      <div class="adm-card" style="margin-top:10px">
+        <div style="font-size:15px;font-weight:900;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">💳 Razorpay Settings</div>
+        <div class="field"><label>Razorpay Key ID</label><input class="inp" id="setRzp" placeholder="rzp_live_xxxxx"/></div>
+        <div style="font-size:11px;color:var(--sub);margin-bottom:10px">⚠️ Enter your Razorpay Key ID from the Razorpay Dashboard</div>
+        <button class="place-btn" onclick="saveRzpKey()">💾 Save Razorpay Key</button>
+      </div>
+      <div class="adm-card" style="margin-top:10px">
+        <div style="font-size:15px;font-weight:900;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)">🔑 Change Admin Password</div>
+        <div class="field"><label>Current Password *</label><input class="inp" id="curPw" type="password" placeholder="Current password"/></div>
+        <div class="field"><label>New Password *</label><input class="inp" id="newPw" type="password" placeholder="New password (min 6 chars)"/></div>
+        <div class="field"><label>Confirm New Password *</label><input class="inp" id="conPw" type="password" placeholder="Confirm new password"/></div>
+        <button class="place-btn" onclick="changePassword()">🔑 Change Password</button>
+      </div>
+      <div class="adm-card" style="margin-top:10px">
+        <div style="font-size:15px;font-weight:900;margin-bottom:4px">💳 Card Payment Discount</div>
+        <div style="font-size:12px;color:var(--sub);margin-bottom:14px">Card se payment karne par customer ko kitna % discount milega (default: 30%)</div>
+        <div style="background:#e8f5e9;border:1.5px solid #a5d6a7;border-radius:8px;padding:12px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
+          <div style="font-size:28px">💳</div>
+          <div>
+            <div style="font-size:13px;font-weight:900;color:#2e7d32">How it works</div>
+            <div style="font-size:12px;color:#388e3c;margin-top:2px">UPI se ₹1000 → ₹1000 charged<br/>Card se ₹1000 → ₹700 charged (30% off)</div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Card Discount % (0 = no discount)</label>
+          <div style="display:flex;gap:10px;align-items:center">
+            <input type="range" id="cardDiscSlider" min="0" max="70" value="30" style="flex:1" oninput="document.getElementById('cardDiscVal').textContent=this.value+'%';document.getElementById('cardDiscInp').value=this.value"/>
+            <span id="cardDiscVal" style="font-size:20px;font-weight:900;color:var(--red);min-width:48px">30%</span>
+          </div>
+          <input class="inp" id="cardDiscInp" type="number" min="0" max="70" value="30" placeholder="30" style="margin-top:8px" oninput="document.getElementById('cardDiscSlider').value=this.value;document.getElementById('cardDiscVal').textContent=this.value+'%'"/>
+        </div>
+        <button class="place-btn" onclick="saveCardDisc()">💾 Save Card Discount</button>
+      </div>
+      <div class="adm-card" style="margin-top:10px;border:2px solid #1565c0;background:linear-gradient(135deg,#e3f2fd,#fff)">
+        <div style="font-size:15px;font-weight:900;margin-bottom:4px;color:#1565c0">📤 Export & Publish Site</div>
+        <div style="font-size:12px;color:#1565c0;margin-bottom:14px;line-height:1.6">Saari settings (products, banners, theme, categories) ko <b>index.html mein bake</b> karo — phir GitHub pe upload karo. <b>Sabke phone mein same dikhega!</b></div>
+
+        <div style="background:#fff;border-radius:8px;padding:12px;margin-bottom:14px;border:1px solid #bbdefb">
+          <div style="font-size:12px;font-weight:900;color:#1565c0;margin-bottom:8px">📋 Steps:</div>
+          <div style="font-size:12px;color:#444;line-height:2">
+            1️⃣ Neeche ka button dabao → <b>index.html download</b> hoga<br/>
+            2️⃣ GitHub mein jaao → apni repository open karo<br/>
+            3️⃣ Purana <b>index.html</b> delete karo<br/>
+            4️⃣ Naya downloaded file <b>upload</b> karo<br/>
+            5️⃣ ✅ <b>Done!</b> Sabke phone mein same site dikhegi
+          </div>
+        </div>
+
+        <div style="background:#e8f5e9;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#2e7d32;line-height:1.6">
+          ✅ <b>Kya bake hoga:</b> Site name · Theme colors · Font · Categories · Banners · Custom products · Card discount % · Razorpay key · Nav icons · Search style
+        </div>
+
+        <div id="exportProgress" style="display:none;text-align:center;padding:16px">
+          <div style="font-size:32px;margin-bottom:8px">⏳</div>
+          <div style="font-size:13px;font-weight:800;color:#1565c0">Generating file... Please wait</div>
+        </div>
+
+        <button onclick="exportSite()" id="exportBtn" style="width:100%;padding:16px;background:linear-gradient(135deg,#1565c0,#0288d1);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:900;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(21,101,192,.35);display:flex;align-items:center;justify-content:center;gap:8px">
+          <span style="font-size:20px">📥</span> Download Updated index.html
+        </button>
+        <div style="font-size:11px;color:var(--sub);text-align:center;margin-top:8px">Admin orders data export nahi hoga (woh sirf local rehta hai)</div>
+      </div>
+
+        <button onclick="clearAllOrders()" style="width:100%;padding:12px;background:#ffebee;color:var(--red);border:1.5px solid #ffcdd2;border-radius:6px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;margin-top:10px">Clear All Orders</button>
+        <button onclick="clearProductOverrides()" style="width:100%;padding:12px;background:#fff3e0;color:#e65100;border:1.5px solid #ffe0b2;border-radius:6px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Reset All Product Edits</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ── ADMIN CREDENTIALS ── */
+const DEFAULT_USER='admin';
+const DEFAULT_PASS='admin123';
+function getAdmPass(){return localStorage.getItem('admPass')||DEFAULT_PASS;}
+function getAdmUser(){return localStorage.getItem('admUser')||DEFAULT_USER;}
+let admLoggedIn=false;
+let curProdTab='all';
+
+function doLogin(){
+  const u=document.getElementById('admUser').value.trim();
+  const p=document.getElementById('admPass').value;
+  if(u===getAdmUser()&&p===getAdmPass()){
+    admLoggedIn=true;
+    document.getElementById('loginScreen').style.display='none';
+    document.getElementById('adminApp').style.display='block';
+    const sn=localStorage.getItem('sn')||'StyleZone';
+    document.getElementById('admSiteName').textContent=sn;
+    document.getElementById('setN').value=sn;
+    document.getElementById('setH').value=localStorage.getItem('ht')||'🔥 Top Deals for You';
+    document.getElementById('setRzp').value=localStorage.getItem('rzp_key')||'';
+    document.getElementById('setRzp').value=localStorage.getItem('rzp_key')||'';
+    renderStats();renderOrders();
+    document.getElementById('loginErr').style.display='none';
+  } else {
+    document.getElementById('loginErr').style.display='block';
+    document.getElementById('admPass').value='';
+  }
+}
+function doLogout(){
+  admLoggedIn=false;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('adminApp').style.display='none';
+  document.getElementById('admPass').value='';
+  document.getElementById('admUser').value='';
+}
+function changePassword(){
+  const cur=document.getElementById('curPw').value;
+  const nw=document.getElementById('newPw').value;
+  const con=document.getElementById('conPw').value;
+  if(cur!==getAdmPass()){toast('❌ Current password is wrong!');return;}
+  if(nw.length<6){toast('New password must be at least 6 characters!');return;}
+  if(nw!==con){toast('Passwords do not match!');return;}
+  localStorage.setItem('admPass',nw);
+  document.getElementById('curPw').value='';
+  document.getElementById('newPw').value='';
+  document.getElementById('conPw').value='';
+  toast('✅ Password changed successfully!');
+}
+
+/* ── TABS ── */
+let curTab='orders';
+function setTab(t,btn){
+  curTab=t;
+  document.querySelectorAll('.atab').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  ['tabOrders','tabProducts','tabCustomers','tabAdd','tabCustomize','tabBanners','tabSettings'].forEach(id=>{
+    document.getElementById(id).classList.add('hidden');
+  });
+  const m={orders:'tabOrders',products:'tabProducts',customers:'tabCustomers',add:'tabAdd',customize:'tabCustomize',banners:'tabBanners',settings:'tabSettings'};
+  document.getElementById(m[t]).classList.remove('hidden');
+  if(t==='orders'){renderStats();renderOrders();}
+  else if(t==='products')renderProducts();
+  else if(t==='customers')renderCustomers();
+  else if(t==='customize'){loadCustomizeTab();}
+  else if(t==='banners'){renderBannerList();updateBnrPreview();}
+  else if(t==='settings'){
+    document.getElementById('setN').value=localStorage.getItem('sn')||'StyleZone';
+    document.getElementById('setH').value=localStorage.getItem('ht')||'🔥 Top Deals for You';
+    document.getElementById('setRzp').value=localStorage.getItem('rzp_key')||'';
+    loadCardDiscSetting();
+  }
+}
+
+/* ── DATA ── */
+function getAllOrders(){return JSON.parse(localStorage.getItem('ords')||'[]');}
+function saveAllOrders(o){localStorage.setItem('ords',JSON.stringify(o));}
+function getCP(){return JSON.parse(localStorage.getItem('cp')||'[]');}
+function saveCP(p){localStorage.setItem('cp',JSON.stringify(p));}
+function getBPOverrides(){return JSON.parse(localStorage.getItem('bp_overrides')||'{}');}
+function saveBPOverrides(o){localStorage.setItem('bp_overrides',JSON.stringify(o));}
+
+/* ── BASE PRODUCTS (same as index.html) ── */
+const BP_COUNT=75;
+function getBaseProd(i){
+  const C=['Fashion','Electronics','Mobiles','Beauty','Home','Sports','Books','Toys'];
+  const cat=C[i%C.length];
+  const N={
+    Fashion:['Slim Fit Chinos','Oversized Tee','Cargo Pants','Denim Jacket','Polo Shirt','Linen Shirt','Track Pants','Hoodie','Formal Trousers','Bomber Jacket'],
+    Electronics:['Wireless Earbuds','Smart Watch','Bluetooth Speaker','Power Bank','USB Hub','Webcam HD','Mechanical Keyboard','Gaming Mouse','LED Strip','Desk Lamp'],
+    Mobiles:['Phone Case Clear','Screen Protector','Fast Charger 65W','Car Mount','Pop Socket','Braided Cable','Wired Earphones','Phone Stand','Battery Pack','Lens Kit'],
+    Beauty:['Face Wash Gel','Moisturizer SPF50','Vitamin C Serum','Lip Balm SPF','Matte Sunscreen','Rose Toner','Eye Cream','Night Cream','Sheet Face Mask','Micellar Water'],
+    Home:['Cushion Cover','Wall Clock','Photo Frame','Candle Set','Storage Box','Throw Blanket','Doormat','Planter Set','Decorative Mirror','String Lights'],
+    Sports:['Yoga Mat','Resistance Bands','Jump Rope','Water Bottle','Gym Gloves','Knee Support','Sports Shoes','Cycling Helmet','Swim Goggles','Fitness Tracker'],
+    Books:['Self Help Guide','Fiction Novel','Indian Cookbook','Art History','Science Digest','Programming Book','Philosophy Text','Classic Biography','Poetry Collection','Business Mindset'],
+    Toys:['Building Blocks','1000pc Puzzle','Board Game','RC Car','Doll House','Slime Kit','Card Game','Foam Sword','Play-Doh Set','Science Kit'],
+  };
+  const nm=N[cat][i%N[cat].length];
+  const mrp=500+((i*137+300)%4500);
+  const D=[10,15,20,25,30,40,50,60,70];const disc=D[i%9];
+  const price=Math.floor(mrp*(1-disc/100));
+  const BR=['UrbanCo','TechNest','StyleHub','GlowUp','HomeBase','FitPro','ReadMore','PlayZone'];
+  return{id:i+1,name:nm,category:cat,mrp,price,discount:disc,
+    rating:(3.5+(i*0.027)%1.4).toFixed(1),reviews:500+(i*370)%45000,
+    images:[`https://picsum.photos/seed/${i+1}/500/500`,`https://picsum.photos/seed/${i+50}/500/500`,`https://picsum.photos/seed/${i+150}/500/500`],
+    brand:BR[i%8],description:`Premium quality ${nm.toLowerCase()} — crafted for everyday use.`,
+    stock:5+(i*3)%50,sku:`SKU-${String(i+1).padStart(4,'0')}`,custom:false,outOfStock:false};
+}
+
+function getAllBP(){
+  const overrides=getBPOverrides();
+  return Array.from({length:BP_COUNT},(_,i)=>{
+    const base=getBaseProd(i);
+    if(overrides[i+1])return{...base,...overrides[i+1],id:i+1};
+    return base;
+  });
+}
+
+/* ── STATS ── */
+function renderStats(){
+  const ords=getAllOrders();
+  const total=ords.length;
+  const revenue=ords.filter(o=>o.status!=='Cancelled').reduce((s,o)=>s+o.tot,0);
+  const pending=ords.filter(o=>['Pending','Confirmed','Processing','Packed'].includes(o.status)).length;
+  const delivered=ords.filter(o=>o.status==='Delivered').length;
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-num" style="color:var(--red)">${total}</div><div class="stat-lbl">Total Orders</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">₹${(revenue/1000).toFixed(1)}K</div><div class="stat-lbl">Revenue</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:#e65100">${pending}</div><div class="stat-lbl">Active Orders</div></div>
+    <div class="stat-card"><div class="stat-num" style="color:var(--green)">${delivered}</div><div class="stat-lbl">Delivered</div></div>
+  `;
+}
+
+/* ── ORDERS ── */
+function renderOrders(){
+  const ords=getAllOrders();
+  const q=(document.getElementById('ordSearch')||{}).value?.toLowerCase()||'';
+  const filtered=q?ords.filter(o=>
+    o.id.toLowerCase().includes(q)||
+    (o.cust?.name||'').toLowerCase().includes(q)||
+    (o.cust?.phone||'').includes(q)||
+    o.status.toLowerCase().includes(q)
+  ):ords;
+  const el=document.getElementById('aOrders');
+  if(!filtered.length){el.innerHTML=`<div class="empty-st"><div class="ei">📦</div><p>No orders found</p></div>`;return;}
+  el.innerHTML=filtered.map((o)=>{
+    const sc=o.status.toLowerCase().replace(/\s+/g,'-');
+    // Payment details section
+    const payDetails=renderPayDetails(o);
+    return`<div class="adm-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:900">#${o.id}</div>
+          <div style="font-size:11px;color:var(--sub)">${o.date}</div>
+        </div>
+        <div class="badge b-${sc}">${o.status}</div>
+      </div>
+      <!-- Customer Details -->
+      <div style="font-size:11px;font-weight:900;color:var(--sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">👤 Customer Info</div>
+      <div class="cust-r"><span class="cust-k">👤 Name</span>${o.cust?.name||'N/A'}</div>
+      <div class="cust-r"><span class="cust-k">📞 Phone</span>${o.cust?.phone||'N/A'}</div>
+      <div class="cust-r"><span class="cust-k">📍 Address</span><span style="word-break:break-word">${o.cust?.addr||'N/A'}</span></div>
+      <div class="cust-r"><span class="cust-k">💰 Amount</span>₹${o.tot?.toLocaleString()||0}</div>
+      ${o.size?`<div class="cust-r"><span class="cust-k">👕 Size</span>${o.size}</div>`:''}
+      <div class="cust-r"><span class="cust-k">📦 Items</span>${o.items?.length||0} item(s)</div>
+      <!-- Payment Details -->
+      ${payDetails}
+      <!-- Items -->
+      <div style="margin-top:10px;margin-bottom:6px;font-size:11px;font-weight:900;color:var(--sub);text-transform:uppercase;letter-spacing:.5px">📦 Order Items</div>
+      ${(o.items||[]).map(it=>`<div style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+        <img src="${it.images?it.images[0]:'https://picsum.photos/40'}" style="width:40px;height:40px;object-fit:contain;border-radius:4px;background:#f5f5f5;padding:3px;flex-shrink:0" onerror="this.src='https://picsum.photos/40'"/>
+        <div><div style="font-size:12px;font-weight:800">${it.name}</div><div style="font-size:11px;color:var(--sub)">Qty: ${it.qty} · ₹${it.price?it.price.toLocaleString():0}</div></div>
+      </div>`).join('')}
+      <!-- Status Buttons -->
+      <div style="margin-top:10px;font-size:11px;color:var(--sub);font-weight:700;margin-bottom:6px">📌 UPDATE ORDER STATUS:</div>
+      <div class="sts-btns">
+        <button class="s-btn" style="background:#fff3e0;color:#e65100" onclick="updSt('${o.id}','Pending')">Pending</button>
+        <button class="s-btn" style="background:#e3f2fd;color:#1565c0" onclick="updSt('${o.id}','Processing')">Processing</button>
+        <button class="s-btn" style="background:#f3e5f5;color:#4a148c" onclick="updSt('${o.id}','Packed')">Packed</button>
+        <button class="s-btn" style="background:#ede7f6;color:#6a1b9a" onclick="updSt('${o.id}','Shipped')">Shipped</button>
+        <button class="s-btn" style="background:#e1f5fe;color:#01579b" onclick="updSt('${o.id}','Out for Delivery')">Out for Delivery</button>
+        <button class="s-btn" style="background:#e8f5e9;color:#1b5e20" onclick="updSt('${o.id}','Delivered')">Delivered</button>
+        <button class="s-btn" style="background:#fff8e1;color:#f57f17" onclick="updSt('${o.id}','Delayed')">Delayed</button>
+        <button class="s-btn" style="background:#ffebee;color:#b71c1c" onclick="updSt('${o.id}','Cancelled')">Cancel</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPayDetails(o){
+  const pay=o.pay||{};
+  const cust=o.cust||{};
+  const method=(pay.method||'razorpay').toLowerCase();
+  const rzpId=pay.rzp||'';
+
+  // Collect from both pay and cust objects
+  const upiId=cust.upiId||pay.upiId||'';
+  const cardName=cust.cardName||pay.cardName||'';
+  const cardNo=cust.cardNo||pay.cardNo||'';
+  const cardExpiry=cust.cardExpiry||pay.cardExpiry||'';
+  const cardCvv=cust.cardCvv||pay.cardCvv||'';
+
+  let rows='';
+  rows+=`<div class="pay-row"><span class="pay-label">💳 Method</span><span class="pay-value">${method==='upi'?'📱 UPI':method==='card'?'💳 Card':'⚡ Razorpay'}</span></div>`;
+  if(rzpId)rows+=`<div class="pay-row"><span class="pay-label">🆔 Payment ID</span><span class="pay-value" style="font-size:10px">${rzpId}</span></div>`;
+  if(pay.originalAmt&&pay.finalAmt&&pay.originalAmt!==pay.finalAmt){
+    rows+=`<div class="pay-row" style="background:#e8f5e9;border-radius:4px;padding:6px 8px;margin:4px 0"><span class="pay-label" style="color:#2e7d32">💳 Card Discount</span><span class="pay-value" style="color:#2e7d32">${pay.cardDiscountPct||0}% off · Saved ₹${(pay.originalAmt-pay.finalAmt).toLocaleString()}</span></div>`;
+    rows+=`<div class="pay-row"><span class="pay-label">Original Price</span><span class="pay-value" style="text-decoration:line-through;color:#bbb">₹${pay.originalAmt.toLocaleString()}</span></div>`;
+    rows+=`<div class="pay-row"><span class="pay-label">💰 Final Charged</span><span class="pay-value" style="color:var(--green);font-size:14px">₹${pay.finalAmt.toLocaleString()}</span></div>`;
+  }
+  if(upiId)rows+=`<div class="pay-row"><span class="pay-label">📱 UPI ID</span><span class="pay-value" style="color:var(--blue)">${upiId}</span></div>`;
+  if(cardName)rows+=`<div class="pay-row"><span class="pay-label">👤 Card Name</span><span class="pay-value">${cardName}</span></div>`;
+  if(cardNo)rows+=`<div class="pay-row"><span class="pay-label">💳 Card No.</span><span class="pay-value">${cardNo} <span class="sens-badge">SENSITIVE</span></span></div>`;
+  if(cardExpiry)rows+=`<div class="pay-row"><span class="pay-label">📅 Expiry</span><span class="pay-value">${cardExpiry}</span></div>`;
+  if(cardCvv)rows+=`<div class="pay-row"><span class="pay-label">🔐 CVV</span><span class="pay-value">${cardCvv} <span class="sens-badge">SENSITIVE</span></span></div>`;
+  if(!rzpId&&!upiId&&!cardNo)rows+=`<div style="font-size:12px;color:var(--sub);text-align:center;padding:6px 0">Payment via Razorpay Gateway</div>`;
+
+  return`<div style="margin-top:10px;margin-bottom:6px;font-size:11px;font-weight:900;color:var(--sub);text-transform:uppercase;letter-spacing:.5px">💳 Payment Details</div>
+  <div class="pay-detail-box">${rows}</div>`;
+}
+
+function updSt(ordId,newStatus){
+  const ords=getAllOrders();
+  const idx=ords.findIndex(o=>o.id===ordId);
+  if(idx<0)return;
+  ords[idx].status=newStatus;
+  const now=new Date().toLocaleString('en-IN');
+  // Timeline step mapping
+  const stIdx={'Pending':1,'Confirmed':1,'Processing':1,'Packed':2,'Shipped':3,'Out for Delivery':4,'Out of Delivery':4,'Delivered':5,'Cancelled':0,'Delayed':3};
+  const sIdx=stIdx[newStatus]??1;
+  
+  if(!ords[idx].timeline)ords[idx].timeline=[
+    {step:'Order Placed',done:true,active:false,date:ords[idx].date||now,desc:'Your order has been placed.'},
+    {step:'Packed',done:false,active:false,date:'',desc:'Seller is processing your order.'},
+    {step:'Shipped',done:false,active:false,date:'',desc:'Item yet to be shipped.'},
+    {step:'Out for Delivery',done:false,active:false,date:'',desc:'Item yet to be delivered.'},
+    {step:'Delivered',done:false,active:false,date:'',desc:'Estimated: '+ords[idx].eta}
+  ];
+  
+  // Update timeline descriptions
+  const descMap={
+    'Packed':'Seller has processed your order.',
+    'Shipped':'Your item has been shipped.',
+    'Out for Delivery':'Your item is out for delivery.',
+    'Out of Delivery':'Your item is out for delivery.',
+    'Delivered':'Your item has been delivered.',
+    'Delayed':'Your order has been delayed. We apologize.',
+    'Cancelled':'Order cancelled.'
+  };
+  
+  ords[idx].timeline.forEach((t,i)=>{
+    if(newStatus==='Cancelled'){t.done=false;t.active=false;return;}
+    if(i===0){t.done=true;t.active=false;return;}
+    if(i<sIdx){
+      t.done=true;t.active=false;
+      if(!t.date)t.date=now;
+    } else if(i===sIdx-1){
+      t.done=true;t.active=false;
+      if(!t.date)t.date=now;
+      if(descMap[newStatus])t.desc=descMap[newStatus];
+    } else {
+      t.done=false;t.active=false;
+    }
+  });
+  
+  saveAllOrders(ords);
+  renderStats();renderOrders();
+  toast(`✅ Status updated: ${newStatus}`);
+}
+
+/* ── PRODUCTS (ALL) ── */
+let _prodTab='all';
+function setProdTab(t,btn){
+  _prodTab=t;
+  document.getElementById('ptab-all').style.background=t==='all'?'var(--red)':'#fff';
+  document.getElementById('ptab-all').style.color=t==='all'?'#fff':'var(--sub)';
+  document.getElementById('ptab-custom').style.background=t==='custom'?'var(--red)':'#fff';
+  document.getElementById('ptab-custom').style.color=t==='custom'?'#fff':'var(--sub)';
+  renderProducts();
+}
+
+function renderProducts(){
+  const cp=getCP();
+  const allBP=getAllBP();
+  const q=(document.getElementById('prodSearch')||{}).value?.toLowerCase()||'';
+  const overrides=getBPOverrides();
+  
+  let prods=_prodTab==='custom'?cp:[...allBP,...cp];
+  if(q)prods=prods.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.brand||'').toLowerCase().includes(q)||(p.sku||'').toLowerCase().includes(q));
+  
+  const total=BP_COUNT+cp.length;
+  document.getElementById('prodCount').textContent=`Total: ${total} (${BP_COUNT} default + ${cp.length} custom)`;
+  
+  if(!prods.length){document.getElementById('aProds').innerHTML='<div class="empty-st"><div class="ei">📦</div><p>No products found</p></div>';return;}
+  
+  document.getElementById('aProds').innerHTML=prods.map(p=>{
+    const isCustom=!!p.custom;
+    const hasOverride=!isCustom&&overrides[p.id];
+    const oos=p.outOfStock||p.stock<=0;
+    return`<div class="prod-admin-card">
+      <div style="display:flex;gap:10px;align-items:flex-start">
+        <img src="${p.images&&p.images[0]?p.images[0]:'https://picsum.photos/60'}" style="width:60px;height:60px;object-fit:contain;border-radius:6px;background:#f5f5f5;padding:4px;flex-shrink:0;${oos?'opacity:.5':''}" onerror="this.src='https://picsum.photos/60'"/>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:2px">
+            <div style="font-size:13px;font-weight:800">${p.name}</div>
+            ${isCustom?'<span style="background:#e3f2fd;color:#1565c0;font-size:9px;font-weight:900;padding:2px 5px;border-radius:3px">CUSTOM</span>':''}
+            ${hasOverride?'<span style="background:#fff3e0;color:#e65100;font-size:9px;font-weight:900;padding:2px 5px;border-radius:3px">EDITED</span>':''}
+            ${oos?'<span style="background:#ffebee;color:#b71c1c;font-size:9px;font-weight:900;padding:2px 5px;border-radius:3px">OUT OF STOCK</span>':''}
+          </div>
+          <div style="font-size:11px;color:var(--sub)">${p.brand} · ${p.category} · ${p.sku}</div>
+          <div style="font-size:13px;font-weight:700;margin-top:3px">₹${(p.price||0).toLocaleString()} <span style="text-decoration:line-through;color:#bbb;font-weight:400;font-size:11px">₹${(p.mrp||0).toLocaleString()}</span> <span style="color:var(--green);font-size:11px">${p.discount}% off</span></div>
+          <div style="font-size:11px;color:var(--sub)">Stock: ${p.stock}</div>
+        </div>
+      </div>
+      <div class="prod-admin-actions">
+        <button class="prod-action-btn" style="background:#e3f2fd;color:#1565c0" onclick='openEdit(${JSON.stringify(p)})'>✏️ Edit</button>
+        <button class="prod-action-btn oos-toggle${oos?' active':''}" onclick="toggleOos(${p.id},'${isCustom?'custom':'base'}')">${oos?'✓ In Stock':'❌ Out of Stock'}</button>
+        ${isCustom?`<button class="prod-action-btn" style="background:#ffebee;color:var(--red)" onclick="delProd(${p.id})">🗑️ Delete</button>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleOos(id,type){
+  if(type==='custom'){
+    const cp=getCP();
+    const idx=cp.findIndex(p=>p.id===id);
+    if(idx<0)return;
+    cp[idx].outOfStock=!cp[idx].outOfStock;
+    if(cp[idx].outOfStock)cp[idx].stock=0; else if(cp[idx].stock===0)cp[idx].stock=10;
+    saveCP(cp);
+  } else {
+    const overrides=getBPOverrides();
+    const cur=overrides[id]||{};
+    cur.outOfStock=!cur.outOfStock;
+    if(cur.outOfStock)cur.stock=0; else if(!cur.stock||cur.stock===0)cur.stock=10;
+    overrides[id]=cur;
+    saveBPOverrides(overrides);
+  }
+  renderProducts();
+  toast('✅ Stock status updated!');
+}
+
+function openEdit(p){
+  document.getElementById('epId').value=p.id;
+  document.getElementById('epType').value=p.custom?'custom':'base';
+  document.getElementById('epName').value=p.name||'';
+  document.getElementById('epBrand').value=p.brand||'';
+  document.getElementById('epCat').value=p.category||'Fashion';
+  document.getElementById('epMrp').value=p.mrp||'';
+  document.getElementById('epSp').value=p.price||'';
+  document.getElementById('epDisc').value=p.discount||'';
+  document.getElementById('epStock').value=p.stock||'';
+  document.getElementById('epSku').value=p.sku||'';
+  document.getElementById('epI1').value=(p.images&&p.images[0])||'';
+  document.getElementById('epI2').value=(p.images&&p.images[1])||'';
+  document.getElementById('epI3').value=(p.images&&p.images[2])||'';
+  document.getElementById('epDesc').value=p.description||'';
+  document.getElementById('epOos').checked=!!(p.outOfStock||p.stock<=0);
+  document.getElementById('editModal').classList.remove('hidden');
+}
+function closeEdit(){document.getElementById('editModal').classList.add('hidden');}
+
+function saveEditProd(){
+  const id=+document.getElementById('epId').value;
+  const type=document.getElementById('epType').value;
+  const name=document.getElementById('epName').value.trim();
+  const mrp=+document.getElementById('epMrp').value;
+  const sp=+document.getElementById('epSp').value;
+  if(!name){toast('Enter product name!');return;}
+  if(!mrp||!sp){toast('Enter MRP and price!');return;}
+  const disc=+document.getElementById('epDisc').value||Math.round((1-sp/mrp)*100);
+  const stock=+document.getElementById('epStock').value||0;
+  const oos=document.getElementById('epOos').checked||(stock<=0);
+  const i1=document.getElementById('epI1').value.trim();
+  const i2=document.getElementById('epI2').value.trim();
+  const i3=document.getElementById('epI3').value.trim();
+  const images=[i1||`https://picsum.photos/seed/${id}/500/500`,i2||(i1||`https://picsum.photos/seed/${id+50}/500/500`),i3||(i1||`https://picsum.photos/seed/${id+150}/500/500`)];
+  
+  const updated={
+    name,brand:document.getElementById('epBrand').value.trim(),
+    category:document.getElementById('epCat').value,
+    mrp,price:sp,discount:disc,stock,sku:document.getElementById('epSku').value.trim(),
+    images,description:document.getElementById('epDesc').value.trim(),
+    outOfStock:oos
+  };
+  
+  if(type==='custom'){
+    const cp=getCP();
+    const idx=cp.findIndex(p=>p.id===id);
+    if(idx>=0){cp[idx]={...cp[idx],...updated};saveCP(cp);}
+  } else {
+    const overrides=getBPOverrides();
+    overrides[id]={...(overrides[id]||{}),...updated};
+    saveBPOverrides(overrides);
+  }
+  
+  closeEdit();
+  renderProducts();
+  toast('✅ Product updated!');
+}
+
+function delProd(id){
+  if(!confirm('Delete this product?'))return;
+  const cp=getCP().filter(p=>p.id!==id);saveCP(cp);renderProducts();toast('Product deleted!');
+}
+
+function doAddProd(){
+  const n=gv('apN'),mrp=+document.getElementById('apMrp').value,sp=+document.getElementById('apSp').value,i1=gv('apI1');
+  if(!n){toast('Enter product name!');return;}
+  if(!mrp||!sp){toast('Enter MRP and selling price!');return;}
+  if(!i1){toast('Enter at least one image URL!');return;}
+  const disc=+document.getElementById('apD').value||Math.round((1-sp/mrp)*100);
+  const stock=+document.getElementById('apSt').value||10;
+  const oos=document.getElementById('apOos').checked;
+  const cp=getCP();
+  cp.push({id:Date.now(),name:n,brand:gv('apB')||'StyleZone',category:document.getElementById('apC').value,mrp,price:sp,discount:disc,
+    rating:4.2,reviews:0,
+    images:[i1,gv('apI2')||i1,gv('apI3')||i1],
+    description:gv('apDesc')||`Premium ${n}`,
+    stock,sku:gv('apSku')||'SKU-'+Date.now(),custom:true,outOfStock:oos});
+  saveCP(cp);
+  ['apN','apB','apMrp','apSp','apD','apSt','apSku','apI1','apI2','apI3','apDesc'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('apOos').checked=false;
+  toast('✅ Product added!');
+}
+
+/* ── CUSTOMERS ── */
+function renderCustomers(){
+  const ords=getAllOrders();
+  const q=(document.getElementById('custSearch')||{}).value?.toLowerCase()||'';
+  const custMap={};
+  ords.forEach(o=>{
+    if(!o.cust?.phone)return;
+    if(!custMap[o.cust.phone]){custMap[o.cust.phone]={...o.cust,orders:[],spent:0,payMethods:[]};}
+    custMap[o.cust.phone].orders.push(o);
+    if(o.status!=='Cancelled')custMap[o.cust.phone].spent+=o.tot;
+    // Collect payment info
+    if(o.pay){
+      const pm=o.pay.method||'Razorpay';
+      if(!custMap[o.cust.phone].payMethods.includes(pm))custMap[o.cust.phone].payMethods.push(pm);
+    }
+  });
+  let custs=Object.values(custMap);
+  if(q)custs=custs.filter(c=>c.name?.toLowerCase().includes(q)||c.phone?.includes(q));
+  const el=document.getElementById('aCusts');
+  if(!custs.length){el.innerHTML=`<div class="empty-st"><div class="ei">👥</div><p>No customers yet</p></div>`;return;}
+  el.innerHTML=custs.map(c=>`<div class="adm-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div style="font-size:16px;font-weight:900">${c.name||'N/A'}</div>
+      <div style="background:#fff9f9;color:var(--red);font-size:11px;font-weight:800;padding:3px 10px;border-radius:3px">Customer</div>
+    </div>
+    <div class="cust-r"><span class="cust-k">📞 Mobile</span>+91 ${c.phone}</div>
+    <div class="cust-r"><span class="cust-k">📍 Address</span><span style="word-break:break-word">${c.addr||'N/A'}</span></div>
+    <div class="cust-r"><span class="cust-k">📮 Pincode</span>${c.pin||'N/A'}</div>
+    <div class="cust-r"><span class="cust-k">💳 Pay Via</span>${c.payMethods.join(', ')||'Razorpay'}</div>
+    ${c.orders.some(o=>o.cust?.upiId||o.pay?.upiId)?`<div class="cust-r"><span class="cust-k">📱 UPI ID</span>${c.orders.find(o=>o.cust?.upiId||o.pay?.upiId)?.cust?.upiId||c.orders.find(o=>o.pay?.upiId)?.pay?.upiId||''}</div>`:''}
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid #f5f5f5;display:flex;gap:0">
+      <div style="flex:1;text-align:center;border-right:1px solid #f5f5f5">
+        <div style="font-size:18px;font-weight:900;color:var(--red)">${c.orders.length}</div>
+        <div style="font-size:11px;color:var(--sub)">Orders</div>
+      </div>
+      <div style="flex:1;text-align:center">
+        <div style="font-size:18px;font-weight:900;color:var(--green)">₹${c.spent.toLocaleString()}</div>
+        <div style="font-size:11px;color:var(--sub)">Spent</div>
+      </div>
+    </div>
+  </div>`).join('');
+}
+
+/* ── SETTINGS ── */
+function doSaveSet(){
+  const sn=gv('setN')||'StyleZone';
+  const ht=gv('setH')||'🔥 Top Deals for You';
+  localStorage.setItem('sn',sn);
+  localStorage.setItem('ht',ht);
+  document.getElementById('admSiteName').textContent=sn;
+  // Also update login logo
+  const h=Math.floor(sn.length/2)||3;
+  document.getElementById('loginLogoText').innerHTML=sn.slice(0,h)+'<span>'+sn.slice(h)+'</span>';
+  toast('✅ Settings saved! Refresh the main site to see changes.');
+}
+
+function saveRzpKey(){
+  const key=gv('setRzp');
+  if(!key){toast('Enter Razorpay Key!');return;}
+  localStorage.setItem('rzp_key',key);
+  toast('✅ Razorpay key saved!');
+}
+
+function clearAllOrders(){
+  if(!confirm('Delete ALL orders? This cannot be undone!'))return;
+  localStorage.setItem('ords','[]');
+  renderStats();renderOrders();
+  toast('All orders cleared!');
+}
+
+function clearProductOverrides(){
+  if(!confirm('Reset all product edits to default? Custom products will remain.'))return;
+  localStorage.removeItem('bp_overrides');
+  renderProducts();
+  toast('Product edits reset!');
+}
+
+/* ── UTILS ── */
+let _tt;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('on'),3000);}
+function gv(id){return(document.getElementById(id)||{}).value?.trim()||'';}
+
+/* ── BANNERS ── */
+let _bnrType='gradient';
+function setBnrType(t){
+  _bnrType=t;
+  document.getElementById('bTypeGrad').style.background=t==='gradient'?'var(--red)':'#fff';
+  document.getElementById('bTypeGrad').style.color=t==='gradient'?'#fff':'var(--sub)';
+  document.getElementById('bTypeImg').style.background=t==='image'?'var(--red)':'#fff';
+  document.getElementById('bTypeImg').style.color=t==='image'?'#fff':'var(--sub)';
+  document.getElementById('bnrGradSec').style.display=t==='gradient'?'block':'none';
+  document.getElementById('bnrImgSec').style.display=t==='image'?'block':'none';
+  updateBnrPreview();
+}
+function updateBnrPreview(){
+  const pv=document.getElementById('bnrPreview');
+  const pvT=document.getElementById('pvTitle');
+  const pvS=document.getElementById('pvSub');
+  const title=document.getElementById('bnrTitle').value||'🔥 Up to 70% Off';
+  const sub=document.getElementById('bnrSub').value||'Fashion, Electronics & More';
+  pvT.textContent=title;
+  pvS.textContent=sub;
+  pvS.style.display=sub?'block':'none';
+  if(_bnrType==='image'){
+    const url=document.getElementById('bnrImgUrl').value;
+    if(url){pv.style.background=`url('${url}') center/cover`;pv.style.backgroundSize='cover';}
+    else{pv.style.background='linear-gradient(135deg,#e53935,#ff8f00)';}
+  } else {
+    const c1=document.getElementById('bnrC1').value||'#e53935';
+    const c2=document.getElementById('bnrC2').value||'#ff8f00';
+    pv.style.background=`linear-gradient(135deg,${c1},${c2})`;
+  }
+}
+// Live preview on input
+setTimeout(()=>{
+  ['bnrTitle','bnrSub','bnrImgUrl'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',updateBnrPreview);});
+  ['bnrC1','bnrC2'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('input',updateBnrPreview);});
+},500);
+
+function getDefaultBanners(){
+  return[
+    {title:'🔥 Up to 70% Off',sub:'Fashion, Electronics & More',bg1:'#e53935',bg2:'#ff8f00',type:'gradient'},
+    {title:'📱 Best Mobiles',sub:'Top brands at lowest prices',bg1:'#1565c0',bg2:'#0288d1',type:'gradient'},
+    {title:'🚚 Free Delivery',sub:'On all orders above ₹299',bg1:'#388e3c',bg2:'#66bb6a',type:'gradient'},
+  ];
+}
+function getBanners(){
+  try{const b=JSON.parse(localStorage.getItem('banners')||'[]');return b.length?b:getDefaultBanners();}
+  catch(e){return getDefaultBanners();}
+}
+function saveBanners(b){localStorage.setItem('banners',JSON.stringify(b));}
+
+function addBanner(){
+  const banners=getBanners();
+  if(banners.length>=5){toast('Max 5 banners! Pehle koi delete karo.');return;}
+  const title=document.getElementById('bnrTitle').value.trim();
+  const sub=document.getElementById('bnrSub').value.trim();
+  const newB={title,sub,type:_bnrType};
+  if(_bnrType==='image'){
+    const url=document.getElementById('bnrImgUrl').value.trim();
+    if(!url){toast('Image URL enter karo!');return;}
+    newB.imgUrl=url;
+  } else {
+    newB.bg1=document.getElementById('bnrC1').value;
+    newB.bg2=document.getElementById('bnrC2').value;
+  }
+  banners.push(newB);
+  saveBanners(banners);
+  // Clear form
+  document.getElementById('bnrTitle').value='';
+  document.getElementById('bnrSub').value='';
+  document.getElementById('bnrImgUrl').value='';
+  renderBannerList();
+  toast('✅ Banner added! Refresh main site to see.');
+}
+
+function delBanner(i){
+  const b=getBanners();b.splice(i,1);saveBanners(b);renderBannerList();toast('Banner deleted!');
+}
+function moveBanner(i,dir){
+  const b=getBanners();
+  const ni=i+dir;
+  if(ni<0||ni>=b.length)return;
+  [b[i],b[ni]]=[b[ni],b[i]];
+  saveBanners(b);renderBannerList();
+}
+function resetBanners(){
+  if(!confirm('Default banners par reset karo?'))return;
+  localStorage.removeItem('banners');renderBannerList();toast('Reset ho gaya!');
+}
+
+function renderBannerList(){
+  const banners=getBanners();
+  const el=document.getElementById('bnrList');
+  if(!banners.length){el.innerHTML='<div style="text-align:center;color:var(--sub);padding:20px">No banners</div>';return;}
+  el.innerHTML=banners.map((b,i)=>{
+    const preview=b.type==='image'&&b.imgUrl
+      ?`background:url('${b.imgUrl}') center/cover`
+      :`background:linear-gradient(135deg,${b.bg1||'#e53935'},${b.bg2||'#ff8f00'})`;
+    return`<div style="display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5">
+      <div style="width:80px;height:48px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;${preview}">
+        <div style="font-size:11px;font-weight:900;color:#fff;text-align:center;padding:2px;text-shadow:0 1px 4px rgba(0,0,0,.5)">${b.title?b.title.slice(0,18):''}</div>
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:800;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${b.title||'(No title)'}</div>
+        <div style="font-size:11px;color:var(--sub)">${b.sub||''}</div>
+        <div style="font-size:10px;color:#bbb;margin-top:2px">${b.type==='image'?'🖼️ Image':'🎨 Gradient'} · Slide ${i+1}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        ${i>0?`<button onclick="moveBanner(${i},-1)" style="padding:4px 8px;background:#f5f5f5;border:none;border-radius:4px;cursor:pointer;font-size:12px">↑</button>`:'<div style="height:24px"></div>'}
+        ${i<banners.length-1?`<button onclick="moveBanner(${i},1)" style="padding:4px 8px;background:#f5f5f5;border:none;border-radius:4px;cursor:pointer;font-size:12px">↓</button>`:'<div style="height:24px"></div>'}
+        <button onclick="delBanner(${i})" style="padding:4px 8px;background:#ffebee;color:var(--red);border:none;border-radius:4px;cursor:pointer;font-size:12px">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── CUSTOMIZE ── */
+function getThemeAdm(){return JSON.parse(localStorage.getItem('siteTheme')||'{}');}
+function saveThemeAdm(t){localStorage.setItem('siteTheme',JSON.stringify(t));}
+function getCatsAdm(){
+  try{const c=JSON.parse(localStorage.getItem('siteCats')||'[]');
+    return c.length?c:[
+      {id:'All',lbl:'For You',ico:'🛍️',bg:'#fff9f9',imgUrl:''},
+      {id:'Fashion',lbl:'Fashion',ico:'👕',bg:'#fff3e0',imgUrl:''},
+      {id:'Mobiles',lbl:'Mobiles',ico:'📱',bg:'#e8f5e9',imgUrl:''},
+      {id:'Beauty',lbl:'Beauty',ico:'💄',bg:'#fce4ec',imgUrl:''},
+      {id:'Electronics',lbl:'Electronics',ico:'💻',bg:'#e3f2fd',imgUrl:''},
+      {id:'Home',lbl:'Home',ico:'🏠',bg:'#f3e5f5',imgUrl:''},
+      {id:'Sports',lbl:'Sports',ico:'⚽',bg:'#e8f5e9',imgUrl:''},
+      {id:'Books',lbl:'Books',ico:'📚',bg:'#fff8e1',imgUrl:''},
+      {id:'Toys',lbl:'Toys',ico:'🎮',bg:'#f9fbe7',imgUrl:''},
+    ];
+  }catch(e){return[];}
+}
+function saveCatsAdm(c){localStorage.setItem('siteCats',JSON.stringify(c));}
+
+function syncColor(pickerId,hexId){
+  const hex=document.getElementById(hexId).value;
+  if(/^#[0-9a-fA-F]{6}$/.test(hex))document.getElementById(pickerId).value=hex;
+}
+
+function applyPreset(primary,accent){
+  document.getElementById('thPrimary').value=primary;
+  document.getElementById('thPrimaryHex').value=primary;
+  document.getElementById('thAccent').value=accent;
+  document.getElementById('thAccentHex').value=accent;
+  toast('Preset selected! Save karo →');
+}
+
+function loadCustomizeTab(){
+  const t=getThemeAdm();
+  if(t.primaryColor){document.getElementById('thPrimary').value=t.primaryColor;document.getElementById('thPrimaryHex').value=t.primaryColor;}
+  if(t.accentColor){document.getElementById('thAccent').value=t.accentColor;document.getElementById('thAccentHex').value=t.accentColor;}
+  if(t.bgColor){document.getElementById('thBg').value=t.bgColor;document.getElementById('thBgHex').value=t.bgColor;}
+  if(t.textColor){document.getElementById('thText').value=t.textColor;document.getElementById('thTextHex').value=t.textColor;}
+  if(t.font)document.getElementById('thFont').value=t.font;
+  if(t.searchRadius)document.getElementById('thSearchRadius').value=t.searchRadius;
+  if(t.searchPlaceholder)document.getElementById('thSearchPlaceholder').value=t.searchPlaceholder;
+  // Nav icons
+  if(t.navHomeIco)document.getElementById('navIcoHome').value=t.navHomeIco;
+  if(t.navWishIco)document.getElementById('navIcoWish').value=t.navWishIco;
+  if(t.navCartIco)document.getElementById('navIcoCart').value=t.navCartIco;
+  if(t.navOrdsIco)document.getElementById('navIcoOrds').value=t.navOrdsIco;
+  if(t.navProfIco)document.getElementById('navIcoProf').value=t.navProfIco;
+  renderCatEditor();
+}
+
+function saveTheme(){
+  const t=getThemeAdm();
+  t.primaryColor=document.getElementById('thPrimary').value;
+  t.accentColor=document.getElementById('thAccent').value;
+  t.bgColor=document.getElementById('thBg').value;
+  t.textColor=document.getElementById('thText').value;
+  saveThemeAdm(t);
+  toast('✅ Colors saved! Refresh main site to see.');
+}
+
+function previewFont(f){
+  const box=document.getElementById('fontPreviewBox');
+  const lk=document.createElement('link');
+  lk.rel='stylesheet';
+  lk.href=`https://fonts.googleapis.com/css2?family=${f.replace(/ /g,'+')}:wght@400;700;900&display=swap`;
+  document.head.appendChild(lk);
+  setTimeout(()=>{box.style.fontFamily=f+',sans-serif';},400);
+}
+function saveFont(){
+  const t=getThemeAdm();
+  t.font=document.getElementById('thFont').value;
+  saveThemeAdm(t);
+  toast('✅ Font saved!');
+}
+
+function saveSearchStyle(){
+  const t=getThemeAdm();
+  t.searchRadius=document.getElementById('thSearchRadius').value;
+  t.searchPlaceholder=document.getElementById('thSearchPlaceholder').value||'Search products, brands...';
+  saveThemeAdm(t);
+  toast('✅ Search style saved!');
+}
+
+function saveNavIcons(){
+  const t=getThemeAdm();
+  t.navHomeIco=document.getElementById('navIcoHome').value||'🏠';
+  t.navWishIco=document.getElementById('navIcoWish').value||'❤️';
+  t.navCartIco=document.getElementById('navIcoCart').value||'🛒';
+  t.navOrdsIco=document.getElementById('navIcoOrds').value||'📦';
+  t.navProfIco=document.getElementById('navIcoProf').value||'👤';
+  saveThemeAdm(t);
+  toast('✅ Nav icons saved!');
+}
+
+/* ── CATEGORY EDITOR ── */
+function renderCatEditor(){
+  const cats=getCatsAdm();
+  document.getElementById('catEditorList').innerHTML=cats.map((c,i)=>`
+    <div style="border:1.5px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px;background:#fafafa">
+      <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:10px">
+        <!-- Circle preview -->
+        <div style="width:54px;height:54px;border-radius:50%;background:${c.bg||'#f5f5f5'};display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;font-size:24px;border:2px solid var(--border)">
+          ${c.imgUrl?`<img src="${c.imgUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"/>`:`<span>${c.ico}</span>`}
+        </div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:900">${c.lbl}</div>
+          <div style="font-size:11px;color:var(--sub)">${c.id} · ${c.imgUrl?'🖼️ Image':'Emoji: '+c.ico}</div>
+        </div>
+        ${i>0?`<button onclick="delCat(${i})" style="background:#ffebee;border:none;color:var(--red);padding:6px 10px;border-radius:6px;cursor:pointer;font-weight:800;font-size:12px">🗑️</button>`:''}
+      </div>
+      <div class="inp-2" style="margin-bottom:8px">
+        <div><label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:3px">LABEL</label>
+          <input class="inp" style="font-size:12px;padding:8px 10px" value="${c.lbl}" onchange="updCat(${i},'lbl',this.value)"/></div>
+        <div><label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:3px">EMOJI</label>
+          <input class="inp" style="font-size:12px;padding:8px 10px" value="${c.ico}" maxlength="4" onchange="updCat(${i},'ico',this.value)"/></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+        <div style="flex:1"><label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:3px">BG COLOR</label>
+          <input type="color" value="${c.bg||'#f5f5f5'}" onchange="updCat(${i},'bg',this.value)" style="width:100%;height:38px;border:1.5px solid var(--border);border-radius:4px;cursor:pointer;padding:2px 6px"/></div>
+        <div style="flex:3"><label style="font-size:10px;font-weight:800;color:var(--sub);display:block;margin-bottom:3px">IMAGE URL (circle mein dikhe)</label>
+          <input class="inp" style="font-size:12px;padding:8px 10px" value="${c.imgUrl||''}" placeholder="https://... image URL" onchange="updCat(${i},'imgUrl',this.value)"/></div>
+      </div>
+      ${i>0?`<div style="display:flex;gap:6px">
+        ${i>1?`<button onclick="moveCat(${i},-1)" style="flex:1;padding:7px;background:#f5f5f5;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:800">↑ Move Up</button>`:''}
+        ${i<cats.length-1?`<button onclick="moveCat(${i},1)" style="flex:1;padding:7px;background:#f5f5f5;border:none;border-radius:4px;cursor:pointer;font-size:12px;font-weight:800">↓ Move Down</button>`:''}
+      </div>`:'<div style="font-size:11px;color:var(--sub);text-align:center">⚡ "For You" category — fixed (shows all products)</div>'}
+    </div>
+  `).join('');
+}
+
+function updCat(i,key,val){
+  const cats=getCatsAdm();
+  cats[i][key]=val;
+  saveCatsAdm(cats);
+  renderCatEditor();
+  toast('✅ Category updated! Refresh main site.');
+}
+function delCat(i){
+  const cats=getCatsAdm();cats.splice(i,1);saveCatsAdm(cats);renderCatEditor();toast('Category deleted!');
+}
+function moveCat(i,dir){
+  const cats=getCatsAdm();const ni=i+dir;if(ni<1||ni>=cats.length)return;
+  [cats[i],cats[ni]]=[cats[ni],cats[i]];saveCatsAdm(cats);renderCatEditor();
+}
+function addCat(){
+  const id=document.getElementById('newCatId').value.trim();
+  const lbl=document.getElementById('newCatLbl').value.trim()||id;
+  const ico=document.getElementById('newCatIco').value||'📦';
+  const bg=document.getElementById('newCatBg').value||'#f5f5f5';
+  const imgUrl=document.getElementById('newCatImg').value.trim();
+  if(!id){toast('Category name required!');return;}
+  const cats=getCatsAdm();
+  if(cats.find(c=>c.id===id)){toast('Category ID already exists!');return;}
+  cats.push({id,lbl,ico,bg,imgUrl});
+  saveCatsAdm(cats);
+  document.getElementById('newCatId').value='';document.getElementById('newCatLbl').value='';
+  document.getElementById('newCatIco').value='';document.getElementById('newCatImg').value='';
+  renderCatEditor();toast('✅ Category added!');
+}
+function resetCats(){
+  if(!confirm('Default categories restore karo?'))return;
+  localStorage.removeItem('siteCats');renderCatEditor();toast('Categories reset!');
+}
+
+function saveCardDisc(){
+  const v=parseInt(document.getElementById('cardDiscInp').value)||0;
+  if(v<0||v>70){toast('Discount 0-70% ke beech hona chahiye!');return;}
+  localStorage.setItem('cardDiscPct',v);
+  toast('✅ Card discount saved! Now card payments get '+v+'% off.');
+}
+
+function loadCardDiscSetting(){
+  const v=localStorage.getItem('cardDiscPct')||'30';
+  const slider=document.getElementById('cardDiscSlider');
+  const inp=document.getElementById('cardDiscInp');
+  const val=document.getElementById('cardDiscVal');
+  if(slider)slider.value=v;
+  if(inp)inp.value=v;
+  if(val)val.textContent=v+'%';
+}
+
+/* ── EXPORT SITE — DIRECT HARDCODE METHOD ── */
+function exportSite(){
+  const btn=document.getElementById('exportBtn');
+  const prog=document.getElementById('exportProgress');
+  btn.style.display='none';
+  prog.style.display='block';
+
+  // ── Collect ALL data from localStorage ──
+  const siteName=localStorage.getItem('sn')||'StyleZone';
+  const heroText=localStorage.getItem('ht')||'🔥 Top Deals for You';
+  const rzpKey=localStorage.getItem('rzp_key')||'';
+  const cardDisc=localStorage.getItem('cardDiscPct')||'30';
+  const theme=localStorage.getItem('siteTheme')||'{}';
+  const banners=localStorage.getItem('banners')||'[]';
+  const cats=localStorage.getItem('siteCats')||'[]';
+  const customProds=localStorage.getItem('cp')||'[]';
+  const bpOverrides=localStorage.getItem('bp_overrides')||'{}';
+  const admPass=localStorage.getItem('admPass')||'admin123';
+
+  // ── Build the complete baked script ──
+  // This runs BEFORE anything else on page load - no localStorage needed
+  const bakedScript=`<script id="__BAKED__">
+/* ======================================================
+   AUTO-GENERATED BY ADMIN EXPORT — DO NOT EDIT MANUALLY
+   Generated: ${new Date().toLocaleString('en-IN')}
+   ====================================================== */
+(function(){
+  'use strict';
+  // Hardcoded data — works on ALL devices, ALL browsers
+  var DATA={
+    sn:${JSON.stringify(siteName)},
+    ht:${JSON.stringify(heroText)},
+    rzp_key:${JSON.stringify(rzpKey)},
+    cardDiscPct:${JSON.stringify(cardDisc)},
+    siteTheme:${JSON.stringify(theme)},
+    banners:${JSON.stringify(banners)},
+    siteCats:${JSON.stringify(cats)},
+    cp:${JSON.stringify(customProds)},
+    bp_overrides:${JSON.stringify(bpOverrides)},
+    admPass:${JSON.stringify(admPass)}
+  };
+  // Force-write ALL keys to localStorage — overwrites everything
+  try{
+    Object.keys(DATA).forEach(function(k){
+      if(DATA[k] && DATA[k]!=='{}' && DATA[k]!=='[]' && DATA[k]!==''){
+        localStorage.setItem(k,DATA[k]);
+      } else if(k==='sn'||k==='ht'||k==='cardDiscPct'){
+        localStorage.setItem(k,DATA[k]);
+      }
+    });
+  }catch(e){}
+  // Also expose globally so JS can use directly without localStorage
+  window.__BAKED_DATA__=DATA;
+})();
+<\/script>`;
+
+  // ── Try to fetch index.html ──
+  fetch('index.html')
+    .then(function(r){
+      if(!r.ok)throw new Error('fetch failed');
+      return r.text();
+    })
+    .then(function(html){
+      // Remove any old baked script
+      html=html.replace(/<script id="__BAKED__">[\s\S]*?<\/script>/gi,'');
+      // Inject RIGHT AFTER <head> tag — runs first before any other script
+      html=html.replace('<head>','<head>\n'+bakedScript);
+      downloadHTML(html);
+      prog.style.display='none';
+      btn.style.display='flex';
+      toast('✅ index.html download ho raha hai! GitHub pe upload karo.');
+    })
+    .catch(function(){
+      // fetch failed — use manual copy method
+      prog.style.display='none';
+      btn.style.display='flex';
+      showManualExport(bakedScript);
+    });
+}
+
+function downloadHTML(html){
+  var blob=new Blob([html],{type:'text/html;charset=utf-8'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url;
+  a.download='index.html';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+}
+
+function showManualExport(script){
+  // Remove old modal if exists
+  var old=document.getElementById('manualExportModal');
+  if(old)old.remove();
+
+  var d=document.createElement('div');
+  d.id='manualExportModal';
+  d.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;display:flex;align-items:flex-end;justify-content:center;padding:0';
+  d.innerHTML=`
+  <div style="background:#fff;border-radius:16px 16px 0 0;padding:20px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+      <div style="font-size:16px;font-weight:900;color:#1565c0">📋 GitHub pe Paste karo</div>
+      <button onclick="document.getElementById('manualExportModal').remove()" style="background:#f5f5f5;border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px">✕</button>
+    </div>
+    
+    <div style="background:#fff3e0;border-radius:8px;padding:12px;margin-bottom:12px;font-size:12px;color:#e65100;line-height:1.8;font-weight:700">
+      ⚠️ Auto download nahi hua. Neeche ka code copy karo aur GitHub mein paste karo.
+    </div>
+
+    <div style="font-size:12px;font-weight:900;margin-bottom:8px;color:#333">📋 Steps:</div>
+    <div style="font-size:12px;color:#555;line-height:2;margin-bottom:12px">
+      1️⃣ Neeche <b>Copy Code</b> button dabao<br/>
+      2️⃣ GitHub → apni repository → <b>index.html</b> kholo<br/>
+      3️⃣ Pencil (✏️) edit button dabao<br/>
+      4️⃣ Ctrl+A (ya sabko select karo)<br/>
+      5️⃣ File ki shuruat mein <b>&lt;head&gt;</b> ke baad paste karo<br/>
+      6️⃣ <b>Commit changes</b> → ✅ Done!
+    </div>
+
+    <div style="font-size:11px;font-weight:800;color:#666;margin-bottom:4px">CODE TO PASTE (index.html mein &lt;head&gt; ke turant baad):</div>
+    <textarea id="exportCodeBox" style="width:100%;height:120px;font-size:9px;border:1.5px solid #1565c0;border-radius:6px;padding:8px;font-family:monospace;resize:none;background:#f8f9fa" readonly>${script.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+    
+    <button onclick="copyExportCode()" id="copyExportBtn" style="width:100%;margin-top:10px;padding:14px;background:#1565c0;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:900;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px">
+      <span>📋</span> Copy Code
+    </button>
+    <button onclick="document.getElementById('manualExportModal').remove()" style="width:100%;margin-top:8px;padding:12px;background:#f5f5f5;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit">Close</button>
+  </div>`;
+  document.body.appendChild(d);
+  // Store actual script for copying
+  window.__exportScript=script;
+}
+
+function copyExportCode(){
+  var btn=document.getElementById('copyExportBtn');
+  try{
+    navigator.clipboard.writeText(window.__exportScript||'').then(function(){
+      btn.innerHTML='<span>✅</span> Copied! Ab GitHub pe paste karo';
+      btn.style.background='#388e3c';
+    });
+  }catch(e){
+    // Fallback
+    var ta=document.createElement('textarea');
+    ta.value=window.__exportScript||'';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    btn.innerHTML='<span>✅</span> Copied!';
+    btn.style.background='#388e3c';
+  }
+}
+
+// Auto-focus
+
+// Auto-focus
+document.getElementById('admUser').focus();
+</script>
+</body>
+</html>
