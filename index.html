@@ -209,7 +209,8 @@ body{font-family:'Nunito',sans-serif;background:#f1f3f6;color:#212121;overflow-x
 .rzp-methods{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0}
 .rzp-method{background:#f5f5f5;border-radius:4px;padding:4px 10px;font-size:11px;font-weight:800;color:var(--sub)}
 .prof-avatar{width:72px;height:72px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;font-size:28px;color:#fff;margin:0 auto 12px;font-weight:900}
-.chat-fab{position:fixed;bottom:78px;right:14px;width:52px;height:52px;border-radius:50%;background:var(--red);border:none;cursor:pointer;font-size:24px;box-shadow:0 4px 18px rgba(229,57,53,.4);z-index:400;animation:pulse 2s infinite}
+.chat-fab{position:fixed;bottom:78px;right:14px;width:52px;height:52px;border-radius:50%;background:var(--red);border:none;cursor:pointer;font-size:24px;box-shadow:0 4px 18px rgba(229,57,53,.4);z-index:400;animation:pulse 2s infinite;transition:bottom .2s}
+.on-detail .chat-fab{bottom:148px}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(229,57,53,.4)}70%{box-shadow:0 0 0 10px transparent}}
 .chat-win{position:fixed;bottom:140px;right:12px;width:290px;height:365px;background:#fff;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:flex;flex-direction:column;overflow:hidden;z-index:400}
 .chat-hd{background:var(--red);padding:12px 14px;display:flex;align-items:center;gap:10px;color:#fff}
@@ -332,17 +333,7 @@ body{font-family:'Nunito',sans-serif;background:#f1f3f6;color:#212121;overflow-x
         </div>
         <div class="field"><label>State *</label><input class="inp" id="ckState" placeholder="State"/></div>
       </div>
-      <div class="ck-card" id="sizeCard" style="display:none">
-        <h3>👕 Select Size *</h3>
-        <div class="size-row" id="ckSzRow">
-          <button class="sz-btn" onclick="pickSz(this,'XS')">XS</button>
-          <button class="sz-btn" onclick="pickSz(this,'S')">S</button>
-          <button class="sz-btn" onclick="pickSz(this,'M')">M</button>
-          <button class="sz-btn" onclick="pickSz(this,'L')">L</button>
-          <button class="sz-btn" onclick="pickSz(this,'XL')">XL</button>
-          <button class="sz-btn" onclick="pickSz(this,'XXL')">XXL</button>
-        </div>
-      </div>
+
       <div class="ck-card">
         <h3>🧾 Order Summary</h3>
         <div id="ckItemsList"></div>
@@ -481,6 +472,23 @@ body{font-family:'Nunito',sans-serif;background:#f1f3f6;color:#212121;overflow-x
       <button class="chat-snd" onclick="sendChat()">➤</button>
     </div>
   </div>
+
+  <!-- FOOTER -->
+  <div id="siteFtr" style="background:#212121;color:#bbb;padding:22px 16px 80px;font-family:inherit;margin-top:8px">
+    <div style="font-size:18px;font-weight:900;color:#fff;font-style:italic;margin-bottom:4px">Easy<span style="color:#f9c820">Shopping</span></div>
+    <div style="font-size:11px;color:#888;margin-bottom:16px">India's trusted online store</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 16px;margin-bottom:16px">
+      <a href="privacy.html" style="color:#bbb;text-decoration:none;font-size:12px;font-weight:700">Privacy Policy</a>
+      <a href="refund.html" style="color:#bbb;text-decoration:none;font-size:12px;font-weight:700">Refund Policy</a>
+      <a href="terms.html" style="color:#bbb;text-decoration:none;font-size:12px;font-weight:700">Terms & Conditions</a>
+      <a href="shipping.html" style="color:#bbb;text-decoration:none;font-size:12px;font-weight:700">Shipping Policy</a>
+    </div>
+    <div style="font-size:11px;color:#666;border-top:1px solid #333;padding-top:12px">
+      📧 support@easyshopping.in &nbsp;|&nbsp; 📞 +91XXXXXXXXXX<br/>
+      <span style="font-size:10px">© 2026 Easy Shopping. All rights reserved.</span>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -742,8 +750,8 @@ function setPage(p){
   else if(p==='profile')renderProfile();
   window.scrollTo(0,0);
 }
-function goHome(){curPage='x';setPage('home');initHome();}
-function goBack(){setPage(prevPage);}
+function goHome(){curPage='x';document.body.classList.remove('on-detail');setPage('home');initHome();}
+function goBack(){document.body.classList.remove('on-detail');setPage(prevPage);}
 
 /* ── HOME ── */
 function initHome(){
@@ -849,6 +857,7 @@ function prodCard(p){
 function openDet(id){
   const p=AP().find(x=>x.id===id);if(!p)return;
   prevPage=curPage;curPage='detail';
+  document.body.classList.add('on-detail');
   document.querySelectorAll('.page').forEach(e=>e.classList.remove('active'));
   document.getElementById('detailPage').classList.add('active');
   document.getElementById('detHdrTxt').textContent=p.name.slice(0,22)+'...';
